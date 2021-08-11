@@ -1,0 +1,100 @@
+version: "3"
+
+networks:
+  gitea:
+    external: false
+
+services:
+# --- GITEA ---
+  server:
+    image: gitea/gitea:1.13.2
+    container_name: gitea
+    environment:
+      - APP_NAME=${APP_NAME}
+      - ROOT_URL=https://git.${DOMAIN}
+      - SSH_DOMAIN=git.${DOMAIN}
+      - HTTP_PORT=3000
+      - SSH_PORT=2222
+      - USER_UID=1000
+      - USER_GID=1000
+      - DB_TYPE=postgres
+      - DB_HOST=db:5432
+      - DB_NAME=gitea
+      - DB_USER=gitea
+      - DB_PASSWD=gitea
+    restart: always
+    networks:
+      - gitea-drone
+      - proxy
+    volumes:
+      - ./volumes/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+#      - "2222:22"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:9.6.20
+    container_name: gitea-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD=gitea
+      - POSTGRES_DB=gitea
+    networks:
+      - gitea-drone
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+
+# --- DRONE CI ---
+  drone-server:
+    image: drone/drone:1.10.1
+    container_name: drone-controller
+    ports:
+      - 8000:80
+      # - 9000:443
+    networks:
+      - gitea-drone
+      - proxy
+    volumes:
+      - ./volumes/drone:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    env_file:
+      - ./env_vars
+    environment:
+      - DRONE_GITEA_SERVER=https://git.${DOMAIN}/
+      - DRONE_SERVER_HOST=ci.${DOMAIN}
+      - DRONE_SERVER_PROTO=https
+      - DRONE_LOGS_TRACE=true
+    depends_on:
+      - server
+
+  drone-agent:
+    image: drone/drone-runner-docker:1.6.3
+    container_name: drone-runner
+    command: agent
+    restart: always
+    depends_on:
+      - drone-server
+    networks:
+      - gitea-drone
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - ./env_vars
+    environment:
+      - DRONE_RPC_HOST=ci.${DOMAIN}
+      - DRONE_RPC_PROTO=https
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_LOGS_TRACE=true
+
+networks:
+  gitea-drone:
+    name: gitea-drone
+  proxy: 
+    external:
+      name: ${NETWORK}

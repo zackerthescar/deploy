@@ -1,0 +1,7 @@
+# Generate a random string, place it below
+DRONE_RPC_SECRET=replace-me
+
+# YOU WILL NEED TO FOLLOW https://docs.drone.io/server/provider/gitea/#create-an-oauth-application AFTER STARTING
+# THE CLUSTER AND SETTING UP GITA FOR THE FIRST TIME
+DRONE_GITEA_CLIENT_ID=replace-me
+DRONE_GITEA_CLIENT_SECRET=replace-me
