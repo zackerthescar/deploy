@@ -1,0 +1,23 @@
+version: '2'
+services:
+# --- CF API DDNS IPV4 ---
+  cloudflare-ddns-ipv4:
+    container_name: cf-ddns-ipv4
+    image: oznu/cloudflare-ddns:latest
+    restart: unless-stopped
+    environment:
+      - API_KEY=${API_KEY}
+      - ZONE=${DOMAIN}
+      - PROXIED=${PROXY}
+# --- CF API DDNS IPV6 ---
+  cloudflare-ddns-ipv6:
+    container_name: cf-ddns-ipv6
+    image: oznu/cloudflare-ddns:latest
+    restart: unless-stopped
+#   host network mode is needed for IPV6
+    network_mode: host
+    environment:
+      - API_KEY=${API_KEY}
+      - ZONE=${DOMAIN}
+      - PROXIED=${PROXY}
+      - RRTYPE=AAAA
