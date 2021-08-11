@@ -1,0 +1,27 @@
+version: "3.5"
+services:
+  jellyfin:
+    image: linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    ports:
+      - 8096:8096
+      - 7359:7359/udp
+      - 1900:1900/udp
+    restart: "unless-stopped"
+    volumes:
+       - ./jellyfin/config:/config
+       - ./jellyfin/cache:/cache
+       - "${TVDIR}:/data/tv"
+       - "${MOVIESDIR}:/data/movies"
+       - "${MUSICDIR}:/data/music"
+    devices:
+       - /dev/dri:/dev/dri
+networks:
+  default:
+    external:
+      name: ${NETWORK}
+

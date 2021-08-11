@@ -1,0 +1,22 @@
+# Downloads folder location
+DLDIR=replace-me
+# TV Shows folder location
+TVDIR=replace-me
+# Movies folder location
+MOVIESDIR=replace-me
+# Music folder location
+MUSICDIR=replace-me
+# Your user PUID
+PUID=replace-me
+# Your user PGID
+PGID=replace-me
+# Your timezone
+TZ=replace-me
+# The name of the network where your reverse proxy resides
+NETWORK=replace-me
+
+# After editing this with your desired values, symlink this to .env in the jellyfin and torrent folders
+# like so:
+# ln -s environment.txt ./jellyfin/.env
+# ln -s environment.txt ./torrent/.env
+
